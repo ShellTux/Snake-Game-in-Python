@@ -22,6 +22,7 @@ class Grid:
     def __init__(self, rows: int, cols: int):
         self.rows = rows
         self.cols = cols
+        self.snake = Snake(0, 0)
 
     def show(self, canvas: Canvas):
         width = canvas.winfo_width()
@@ -37,9 +38,34 @@ class Grid:
         for j in range(self.cols):
             canvas.create_line(dw * j, 0, dw * j, height, fill = 'white')
 
+        # Show snake
+        for index, segment in enumerate(self.snake.body):
+            fill_color = self.snake.head_color if index == 0 else self.snake.body_color 
+            segment_row, segment_column = segment
+            segment_x = segment_column * dw
+            segment_y = segment_row * dh
+            canvas.create_rectangle(
+                    segment_x,
+                    segment_y,
+                    segment_x + dw,
+                    segment_y + dh,
+                    fill = fill_color
+                    )
+
     def update(self, canvas: Canvas):
         self.show(canvas)
         canvas.update()
+
+
+class Snake:
+    def __init__(self, row: int, col: int, *, head_color: str = 'red', body_color: str = 'green'):
+        self.body = [(row, col)]
+        self.head_color = head_color
+        self.body_color = body_color
+        self.velocity = (0, 0)
+
+    def move(self):
+        pass
 
 
 if __name__ == '__main__':
@@ -48,4 +74,3 @@ if __name__ == '__main__':
 
     while myApp.isRunning:
         game_grid.update(myApp.canvas)
-    # myApp.window.mainloop()
