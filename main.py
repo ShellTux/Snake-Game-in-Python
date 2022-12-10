@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from tkinter import Tk, Canvas
 from time import sleep
-from random import randint
+from random import randint, choice
 from itertools import pairwise
 
 ROWS = COLS = 20
@@ -110,7 +110,7 @@ class Grid:
     def __init__(self, window: Tk, rows: int, cols: int):
         self.rows = rows
         self.cols = cols
-        self.snake = Snake(window, 0, 0)
+        self.snake = Snake(window, randint(0, rows - 1), randint(0, cols - 1))
         self.food = Vector(randint(0, rows - 1), randint(0, cols - 1))
         self.food_color = 'green'
 
@@ -128,21 +128,6 @@ class Grid:
         for j in range(self.cols):
             canvas.create_line(dw * j, 0, dw * j, height, fill = 'white')
 
-        # Show snake
-        for index, segment in enumerate(self.snake.body):
-            fill_color = self.snake.head_color if index == 0 else self.snake.body_color 
-            segment_row, segment_column = segment
-            segment_x = segment_column * dw
-            segment_y = segment_row * dh
-            canvas.create_rectangle(
-                    segment_x,
-                    segment_y,
-                    segment_x + dw,
-                    segment_y + dh,
-                    fill = fill_color,
-                    outline = 'white'
-                    )
-
         # Show food
         food_x = self.food.y * dw
         food_y = self.food.x * dh
@@ -154,6 +139,23 @@ class Grid:
                 fill = self.food_color,
                 outline = 'white'
                 )
+
+        # Show snake
+        # for index, segment in enumerate(self.snake.body):
+        for i in range(len(self.snake.body) - 1, -1, -1):
+            segment = self.snake.body[i]
+            fill_color = self.snake.head_color if i == 0 else self.snake.body_color 
+            segment_row, segment_column = segment
+            segment_x = segment_column * dw
+            segment_y = segment_row * dh
+            canvas.create_rectangle(
+                    segment_x,
+                    segment_y,
+                    segment_x + dw,
+                    segment_y + dh,
+                    fill = fill_color,
+                    outline = 'white'
+                    )
 
     def check_collision(self):
         # Check if snake is eating the food
@@ -180,7 +182,22 @@ class Grid:
         return False
 
     def generate_food(self):
-        self.food = Vector(randint(0, self.rows - 1), randint(0, self.cols - 1))
+        # Creating a list of all locations that doesn't contain
+        # any of the snake body segments, so I can choose a random
+        # free spot for the food
+        possible_cels = []
+        for i in range(self.rows):
+            for j in range(self.cols):
+                possible_cels.append((i, j))
+
+        # Remove snake body segments from possible cels
+        for segment in self.snake.body:
+            position = (segment.x, segment.y)
+            if position in possible_cels:
+                possible_cels.remove(position)
+
+        chosen_cell = choice(possible_cels)
+        self.food = Vector(chosen_cell[0], chosen_cell[1])
 
     def update(self, canvas: Canvas):
         canvas.delete('all')
