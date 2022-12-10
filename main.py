@@ -2,8 +2,9 @@
 from tkinter import Tk, Canvas
 from time import sleep
 from random import randint
+from itertools import pairwise
 
-ROWS = COLS = 30
+ROWS = COLS = 20
 WIDTH = HEIGHT = 600
 WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
@@ -30,6 +31,11 @@ class Vector:
     def copy(self):
         return Vector(self.x, self.y)
 
+    def constrain(self, minimum_vector, maximum_vector):
+        self.x = min(max(self.x, minimum_vector.x), maximum_vector.x)
+        self.y = min(max(self.y, minimum_vector.y), maximum_vector.y)
+        return Vector(self.x, self.y)
+
 
 class App:
     def __init__(self, title: str, width: int, height: int, *, background_color: str = BACKGROUND_COLOR):
@@ -46,7 +52,7 @@ class App:
 
 
 class Snake:
-    def __init__(self, window: Tk, row: int, col: int, *, head_color: str = 'red', body_color: str = 'green'):
+    def __init__(self, window: Tk, row: int, col: int, *, head_color: str = 'red', body_color: str = 'grey'):
         self.body = [Vector(row, col)]
         self.head_color = head_color
         self.body_color = body_color
@@ -87,8 +93,17 @@ class Snake:
         if self.velocity == None:
             return
 
+        for segment, previous_segment in pairwise(self.body[::-1]):
+            segment.x = previous_segment.x
+            segment.y = previous_segment.y
+
         # Move snake head by self.velocity
         self.body[0] += self.velocity 
+
+
+    def grow(self):
+        previous_segment = self.body[-1]
+        self.body.append(Vector(previous_segment.x, previous_segment.y))
 
 
 class Grid:
@@ -96,7 +111,7 @@ class Grid:
         self.rows = rows
         self.cols = cols
         self.snake = Snake(window, 0, 0)
-        self.food = Vector(10, 10)
+        self.food = Vector(randint(0, rows - 1), randint(0, cols - 1))
         self.food_color = 'green'
 
     def show(self, canvas: Canvas):
@@ -129,8 +144,8 @@ class Grid:
                     )
 
         # Show food
-        food_x = self.food.x * dw
-        food_y = self.food.y * dh
+        food_x = self.food.y * dw
+        food_y = self.food.x * dh
         canvas.create_rectangle(
                 food_x,
                 food_y,
@@ -142,10 +157,9 @@ class Grid:
 
     def check_collision(self):
         # Check if snake is eating the food
-        print(self.snake.body[0] == self.food)
-        print(self.snake.body[0], self.food)
         if self.snake.body[0] == self.food:
             self.generate_food()
+            self.snake.grow()
 
 
         # Check if snake body collided with walls
@@ -171,6 +185,7 @@ class Grid:
     def update(self, canvas: Canvas):
         canvas.delete('all')
         self.snake.move()
+        self.snake.body[0].constrain(Vector(0, 0), Vector(self.rows - 1, self.cols - 1))
         if (self.check_collision()):
             print('collision')
             # self.window.destroy()
