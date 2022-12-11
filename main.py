@@ -34,6 +34,7 @@ class App:
 
     def create_grid(self, rows: int, cols: int):
         self.grid = Grid(rows, cols, self.highscore_file_path)
+        self.highscore_label.config(text = f'Score: {self.grid.score} | Highscore: {self.grid.highscore}')
         self.window.bind('<Key>', self.grid.snake.change_direction)
 
     def update(self):
