@@ -1,14 +1,12 @@
 from itertools import pairwise
-from tkinter import Tk
 from Vector import Vector
 
 class Snake:
-    def __init__(self, window: Tk, row: int, col: int, *, head_color: str = 'red', body_color: str = 'grey'):
+    def __init__(self, row: int, col: int, *, head_color: str = 'red', body_color: str = 'grey'):
         self.body = [Vector(row, col)]
         self.head_color = head_color
         self.body_color = body_color
         self.velocity = None
-        window.bind('<Key>', self.change_direction)
 
     def change_direction(self, key_event):
         map_direction_to_velocity = {
