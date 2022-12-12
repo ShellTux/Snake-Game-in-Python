@@ -1,15 +1,17 @@
-from tkinter import Canvas, Label
+from tkinter import Canvas, Label, PhotoImage
 from Snake import Snake
 from Vector import Vector
 from random import randint, choice
 
 class Grid:
-    def __init__(self, rows: int, cols: int, highscore_file_path: str):
+    def __init__(self, rows: int, cols: int, highscore_file_path: str, *, dw: int, dh: int):
         self.rows = rows
         self.cols = cols
         self.snake = Snake(randint(0, rows - 1), randint(0, cols - 1))
         self.food = Vector(randint(0, rows - 1), randint(0, cols - 1))
         self.food_color = 'green'
+        food_image = PhotoImage(file = 'apple.png')
+        self.food_image = food_image.subsample(food_image.width() // dw, food_image.height() // dh)
         self.score = 0
 
         max_highscore = 0
@@ -55,14 +57,15 @@ class Grid:
         # Show food
         food_x = self.food.y * dw
         food_y = self.food.x * dh
-        canvas.create_rectangle(
-                food_x,
-                food_y,
-                food_x + dw,
-                food_y + dh,
-                fill = self.food_color,
-                outline = 'white'
-                )
+        canvas.create_image(food_x, food_y, image = self.food_image, anchor = 'nw')
+        # canvas.create_rectangle(
+        #         food_x,
+        #         food_y,
+        #         food_x + dw,
+        #         food_y + dh,
+        #         fill = self.food_color,
+        #         outline = 'white'
+        #         )
 
         # Show snake
         self.snake.show(canvas, dw, dh)
@@ -71,7 +74,7 @@ class Grid:
         # Check if snake is eating the food
         if self.snake.body[0] == self.food:
             self.generate_food()
-            self.snake.bolus = 0
+            self.snake.bolus.append(0)
             self.snake.grow()
             self.score += 10
             if self.score > self.highscore:
