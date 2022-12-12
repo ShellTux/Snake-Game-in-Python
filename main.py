@@ -25,10 +25,10 @@ class App:
         canvas = Canvas(window, width = width, height = height, bg = background_color)
         canvas.pack()
         self.canvas = canvas
+
         self.width = width
         self.height = height
         self.isRunning = True
-        self.grid: Grid
         self.frame_rate = frame_rate
         self.highscore_file_path = highscore_file_path
 
@@ -49,8 +49,25 @@ class App:
             sleep(1 / self.frame_rate)
 
     def save_highscore(self):
+        all_highscores: list[int] = []
+        try:
+            with open(self.highscore_file_path, 'r') as file:
+                lines = file.readlines()
+                for line in lines:
+                    # Remove blank spaces or new lines
+                    stripped_line = line.strip()
+                    # Ignore empty lines
+                    if stripped_line == '':
+                        continue
+                    all_highscores.append(int(stripped_line))
+        except FileNotFoundError:
+            all_highscores = []
+
+        # Open highscore file in append mode to add a new line with the highscore
         with open(self.highscore_file_path, 'a') as file:
-            file.write(f'{self.grid.highscore}\n')
+            # Only write to the file if already doesn't contain the highscore
+            if self.grid.highscore not in all_highscores:
+                file.write(f'{self.grid.highscore}\n')
 
 
 if __name__ == '__main__':

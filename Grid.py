@@ -12,25 +12,37 @@ class Grid:
         self.food_color = 'green'
         self.score = 0
 
-        # Getting highest highscore from file
-        all_highscores: list[int] = []
+        max_highscore = 0
         try:
             with open(highscore_file_path, 'r') as file:
-                lines = file.readlines()
-                for line in lines:
-                    stripped_line = line.strip()
-                    if stripped_line == '':
-                        continue
-                    all_highscores.append(int(stripped_line))
+                def convert_string_to_number(frase: str):
+                    try:
+                        return int(frase.strip())
+                    except ValueError:
+                        return 0
+                max_highscore = max(map(convert_string_to_number, file.readlines()))
         except FileNotFoundError:
-            all_highscores: list[int] = []
-        self.highscore = max(all_highscores) if len(all_highscores) > 0 else 0
+            max_highscore = 0
+        self.highscore = max_highscore
 
     def show(self, canvas: Canvas):
         width = canvas.winfo_width()
         height = canvas.winfo_height()
-        dw = width / self.cols
-        dh = height / self.rows
+        dw = width // self.cols
+        dh = height // self.rows
+
+        for i in range(self.rows):
+            for j in range(self.cols):
+                x = j * dw
+                y = i * dh
+                canvas.create_rectangle(
+                        x,
+                        y,
+                        x + dw,
+                        y + dh,
+                        fill = 'grey',
+                        outline = 'white'
+                        )
                 
         # Showing lines
         for i in range(self.rows):
@@ -53,21 +65,7 @@ class Grid:
                 )
 
         # Show snake
-        # for index, segment in enumerate(self.snake.body):
-        for i in range(len(self.snake.body) - 1, -1, -1):
-            segment = self.snake.body[i]
-            fill_color = self.snake.head_color if i == 0 else self.snake.body_color 
-            segment_row, segment_column = segment
-            segment_x = segment_column * dw
-            segment_y = segment_row * dh
-            canvas.create_rectangle(
-                    segment_x,
-                    segment_y,
-                    segment_x + dw,
-                    segment_y + dh,
-                    fill = fill_color,
-                    outline = 'white'
-                    )
+        self.snake.show(canvas, dw, dh)
 
     def check_if_eating_food(self, label: Label):
         # Check if snake is eating the food
@@ -84,7 +82,7 @@ class Grid:
         # Check if snake body collided with walls
         if (
                 self.snake.body[0].x < 0 or 
-                self.snake.body[0].y > self.rows - 1 or 
+                self.snake.body[0].x > self.rows - 1 or 
                 self.snake.body[0].y < 0 or 
                 self.snake.body[0].y > self.cols - 1
                 ):
@@ -102,7 +100,7 @@ class Grid:
         # Creating a list of all locations that doesn't contain
         # any of the snake body segments, so I can choose a random
         # free spot for the food
-        possible_cels = []
+        possible_cels: list[tuple] = []
         for i in range(self.rows):
             for j in range(self.cols):
                 possible_cels.append((i, j))
