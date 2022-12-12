@@ -71,11 +71,14 @@ class Grid:
         # Check if snake is eating the food
         if self.snake.body[0] == self.food:
             self.generate_food()
+            self.snake.bolus = 0
             self.snake.grow()
             self.score += 10
             if self.score > self.highscore:
                 self.highscore = self.score
             label.config(text = f'Score: {self.score} | Highscore: {self.highscore}')
+            return True
+        return False
 
 
     def check_collision(self):

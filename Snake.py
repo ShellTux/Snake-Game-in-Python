@@ -9,6 +9,7 @@ class Snake:
         self.body_color = body_color
         self.velocity = Vector(0, 0)
         self.moves_buffer: list[Vector] = []
+        self.bolus: int = -1
 
     def change_direction(self, key_event):
         map_direction_to_velocity = {
@@ -56,19 +57,38 @@ class Snake:
 
     def show(self, canvas: Canvas, dw: int, dh: int):
         for i in range(len(self.body) - 1, -1, -1):
-            segment = self.body[i]
             fill_color = self.head_color if i == 0 else self.body_color 
-            segment_row, segment_column = segment
-            segment_x = segment_column * dw
-            segment_y = segment_row * dh
+            width_scale: float = max(min(1 - i * .05, 1), 0.5)
+            segment_row, segment_column = self.body[i]
+            segment_x = dw * (segment_column + (1 - width_scale) * .5)
+            segment_y = dh * (segment_row    + (1 - width_scale) * .5)
             canvas.create_rectangle(
                     segment_x,
                     segment_y,
-                    segment_x + dw,
-                    segment_y + dh,
+                    segment_x + dw * width_scale,
+                    segment_y + dh * width_scale,
                     fill = fill_color,
                     outline = 'white'
                     )
+            if i == self.bolus:
+                # Constrain between 0 and 1
+                width_scale: float = max(min(1 - i * .1, 1), 0.6)
+                segment_x = dw * (segment_column + (1 - width_scale) * .5)
+                segment_y = dh * (segment_row    + (1 - width_scale) * .5)
+                canvas.create_oval(
+                        segment_x,
+                        segment_y,
+                        segment_x + dw * width_scale,
+                        segment_y + dh * width_scale,
+                        fill = fill_color,
+                        # outline = 'white'
+                        )
+
+        if self.bolus >= 0:
+            self.bolus += 1
+
+        if self.bolus >= len(self.body):
+            self.bolus = -1
 
     def grow(self):
         previous_segment = self.body[-1]
