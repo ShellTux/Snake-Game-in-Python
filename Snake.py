@@ -71,7 +71,7 @@ class Snake:
                     )
             if i in self.bolus:
                 # Constrain between 0.6 and 1
-                width_scale: float = max(1 - i * 0.08, 0.1)
+                width_scale: float = max(2**.5 - i * 0.08, 0.1)
                 segment_x = dw * (segment_column + (1 - width_scale) * .5)
                 segment_y = dh * (segment_row    + (1 - width_scale) * .5)
                 canvas.create_oval(
