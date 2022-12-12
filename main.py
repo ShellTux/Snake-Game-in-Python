@@ -4,14 +4,14 @@ from time import sleep
 from Grid import Grid
 
 ROWS = COLS = 20
-WIDTH = HEIGHT = 600
+WIDTH = 600
 WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
 HIGHSCORE_FILE_PATH: str = 'highscore.txt'
 
 
 class App:
-    def __init__(self, title: str, width: int, height: int, *, background_color: str = BACKGROUND_COLOR, frame_rate: int = 10, highscore_file_path: str = HIGHSCORE_FILE_PATH):
+    def __init__(self, title: str, canvas_width: int, *, background_color: str = BACKGROUND_COLOR, frame_rate: int = 10, highscore_file_path: str = HIGHSCORE_FILE_PATH):
         # Window setup
         window = Tk()
         window.title(title)
@@ -22,18 +22,17 @@ class App:
         label.pack()
         self.highscore_label = label
         # Canvas setup
-        canvas = Canvas(window, width = width, height = height, bg = background_color)
+        canvas = Canvas(window, width = canvas_width, height = canvas_width, bg = background_color)
         canvas.pack()
         self.canvas = canvas
 
-        self.width = width
-        self.height = height
+        self.width = self.height = canvas_width
         self.isRunning = True
         self.frame_rate = frame_rate
         self.highscore_file_path = highscore_file_path
 
     def create_grid(self, rows: int, cols: int):
-        self.grid = Grid(rows, cols, self.highscore_file_path, dw = self.width // cols, dh = self.height // rows)
+        self.grid = Grid(rows, cols, self.highscore_file_path, image_width = min(self.width, self.height) // cols) # quick temporary fix for image_width
         self.highscore_label.config(text = f'Score: {self.grid.score} | Highscore: {self.grid.highscore}')
         self.window.bind('<Key>', self.grid.snake.change_direction)
 
@@ -71,7 +70,7 @@ class App:
 
 
 if __name__ == '__main__':
-    myApp = App(WINDOW_TITLE, WIDTH, HEIGHT, background_color = BACKGROUND_COLOR)
+    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR)
     myApp.create_grid(ROWS, COLS)
 
     myApp.mainloop()
