@@ -58,7 +58,7 @@ class Snake:
     def show(self, canvas: Canvas, dw: int, dh: int):
         for i in range(len(self.body) - 1, -1, -1):
             fill_color = self.head_color if i == 0 else self.body_color 
-            width_scale: float = max(min(1 - i * .05, 1), 0.5)
+            width_scale: float = max(1 - i * 0.05, 0.85)
             segment_row, segment_column = self.body[i]
             segment_x = dw * (segment_column + (1 - width_scale) * .5)
             segment_y = dh * (segment_row    + (1 - width_scale) * .5)
@@ -68,11 +68,10 @@ class Snake:
                     segment_x + dw * width_scale,
                     segment_y + dh * width_scale,
                     fill = fill_color,
-                    outline = 'white'
                     )
             if i == self.bolus:
-                # Constrain between 0 and 1
-                width_scale: float = max(min(1 - i * .1, 1), 0.6)
+                # Constrain between 0.6 and 1
+                width_scale: float = max(1 - i * .1, 0.6)
                 segment_x = dw * (segment_column + (1 - width_scale) * .5)
                 segment_y = dh * (segment_row    + (1 - width_scale) * .5)
                 canvas.create_oval(
@@ -80,8 +79,8 @@ class Snake:
                         segment_y,
                         segment_x + dw * width_scale,
                         segment_y + dh * width_scale,
-                        fill = fill_color,
-                        # outline = 'white'
+                        fill = 'green',#fill_color,
+                        outline = 'white'
                         )
 
         if self.bolus >= 0:
