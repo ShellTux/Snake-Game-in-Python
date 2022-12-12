@@ -9,7 +9,7 @@ class Snake:
         self.body_color = body_color
         self.velocity = Vector(0, 0)
         self.moves_buffer: list[Vector] = []
-        self.bolus: int = -1
+        self.bolus: list[int] = []
 
     def change_direction(self, key_event):
         map_direction_to_velocity = {
@@ -69,9 +69,9 @@ class Snake:
                     segment_y + dh * width_scale,
                     fill = fill_color,
                     )
-            if i == self.bolus:
+            if i in self.bolus:
                 # Constrain between 0.6 and 1
-                width_scale: float = max(1 - i * .1, 0.6)
+                width_scale: float = max(1 - i * 0.08, 0.1)
                 segment_x = dw * (segment_column + (1 - width_scale) * .5)
                 segment_y = dh * (segment_row    + (1 - width_scale) * .5)
                 canvas.create_oval(
@@ -83,11 +83,10 @@ class Snake:
                         outline = 'white'
                         )
 
-        if self.bolus >= 0:
-            self.bolus += 1
+        for i in range(len(self.bolus)):
+            self.bolus[i] += 1
 
-        if self.bolus >= len(self.body):
-            self.bolus = -1
+        self.bolus = list(filter(lambda bolus: bolus < len(self.body), self.bolus))
 
     def grow(self):
         previous_segment = self.body[-1]
