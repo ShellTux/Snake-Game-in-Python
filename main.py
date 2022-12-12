@@ -18,7 +18,7 @@ class App:
         window.resizable(False, False)
         self.window = window
         # Label Setup
-        label = Label(window, text = f'Score: 0 | Highscore: 0', font = ('Hlevetica 40 bold'))
+        label = Label(window, text = f'Score: 0 | Highscore: 0', font = ('Hlevetica 30 bold'))
         label.pack()
         self.highscore_label = label
         # Canvas setup
