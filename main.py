@@ -60,8 +60,8 @@ class App:
 
     def update(self):
         self.canvas.delete('all')
-        self.robot.play()
         is_running = self.grid.update(self.canvas, self.update_highscore_label)
+        self.robot.play()
         self.update_steps_label(self.grid.snake.steps)
         self.show()
         return is_running
@@ -132,7 +132,7 @@ class App:
 
 
 if __name__ == '__main__':
-    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR)
+    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 120)
     myApp.create_grid(ROWS, COLS)
 
     myApp.mainloop()
