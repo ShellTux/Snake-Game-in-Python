@@ -9,6 +9,8 @@ WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
 HIGHSCORE_FILE_PATH: str = 'highscore.txt'
 
+# Autoplay branch fingerprint
+
 
 class App:
     def __init__(self, title: str, canvas_width: int, *, background_color: str = BACKGROUND_COLOR, frame_rate: int = 10, highscore_file_path: str = HIGHSCORE_FILE_PATH):
