@@ -27,9 +27,6 @@ class Grid:
             max_highscore = 0
         self.highscore = max_highscore
 
-    def show(self, canvas: Canvas):
-        pass
-
     def check_if_eating_food(self, update_highscore_label):
         # Check if snake is eating the food
         if self.snake.body[0] != self.food:
