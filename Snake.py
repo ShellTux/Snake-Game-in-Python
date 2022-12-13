@@ -1,6 +1,9 @@
 from tkinter import Canvas
 from itertools import pairwise
 from Vector import Vector
+from colorsys import hls_to_rgb
+
+rgb_to_hex = lambda rgb: '#%02x%02x%02x' % rgb
 
 class Snake:
     def __init__(self, row: int, col: int, *, head_color: str = 'red', body_color: str = 'black'):
@@ -61,7 +64,7 @@ class Snake:
 
     def show(self, canvas: Canvas, dw: int, dh: int):
         for i in range(len(self.body) - 1, -1, -1):
-            fill_color = self.head_color if i == 0 else self.body_color 
+            fill_color = self.head_color if i == 0 else rgb_to_hex(tuple(map(lambda x: int(x * 255), hls_to_rgb(1 / i, 0.5, 1)))) #self.body_color 
             width_scale: float = max(1 - i * 0.05, 0.85)
             segment_row, segment_column = self.body[i]
             segment_x = dw * (segment_column + (1 - width_scale) * .5)
