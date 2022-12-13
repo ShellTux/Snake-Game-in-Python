@@ -10,6 +10,7 @@ class Snake:
         self.velocity = Vector(0, 0)
         self.moves_buffer: list[Vector] = []
         self.bolus: list[int] = []
+        self.steps: int = 0
 
     def change_direction(self, key_event):
         map_direction_to_velocity = {
@@ -54,6 +55,9 @@ class Snake:
 
         # Move snake head by self.velocity
         self.body[0] += self.velocity
+
+        if self.velocity != Vector(0, 0):
+            self.steps += 1
 
     def show(self, canvas: Canvas, dw: int, dh: int):
         for i in range(len(self.body) - 1, -1, -1):

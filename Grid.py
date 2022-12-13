@@ -1,4 +1,4 @@
-from tkinter import Canvas, Label, PhotoImage
+from tkinter import Canvas, PhotoImage
 from Snake import Snake
 from Vector import Vector
 from random import randint, choice
@@ -62,18 +62,19 @@ class Grid:
         # Show snake
         self.snake.show(canvas, dw, dh)
 
-    def check_if_eating_food(self, label: Label):
+    def check_if_eating_food(self, update_highscore_label):
         # Check if snake is eating the food
-        if self.snake.body[0] == self.food:
-            self.generate_food()
-            self.snake.bolus.append(0)
-            self.snake.grow()
-            self.score += 10
-            if self.score > self.highscore:
-                self.highscore = self.score
-            label.config(text = f'Score: {self.score} | Highscore: {self.highscore}')
-            return True
-        return False
+        if self.snake.body[0] != self.food:
+            return False
+
+        self.generate_food()
+        self.snake.bolus.append(0)
+        self.snake.grow()
+        self.score += 10
+        if self.score > self.highscore:
+            self.highscore = self.score
+        update_highscore_label(self.score, self.highscore)
+        return True
 
 
     def check_collision(self):
@@ -112,15 +113,14 @@ class Grid:
         chosen_cell = choice(possible_cels)
         self.food = Vector(chosen_cell[0], chosen_cell[1])
 
-    def update(self, canvas: Canvas, label: Label):
+    def update(self, canvas: Canvas, update_highscore_label):
         # Clear screen
         canvas.delete('all')
         self.snake.move()
         # Check if collided with walls or with it's own body
         if (self.check_collision()):
             return False
-        self.check_if_eating_food(label)
-        self.snake.body[0].constrain(Vector(0, 0), Vector(self.rows - 1, self.cols - 1))
+        self.check_if_eating_food(update_highscore_label)
         self.show(canvas)
         canvas.update()
         return True

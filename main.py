@@ -18,12 +18,10 @@ class App:
         window.resizable(False, False)
         self.window = window
         # Label Setup
-        label = Label(window, text = f'Score: 0 | Highscore: 0', font = ('Hlevetica 30 bold'))
-        label.pack()
-        self.highscore_label = label
+        highscore_label = Label(window, text = f'Score: 0 | Highscore: 0', font = ('Hlevetica 30 bold'))
+        self.highscore_label = highscore_label
         # Canvas setup
         canvas = Canvas(window, width = canvas_width, height = canvas_width, bg = background_color)
-        canvas.pack()
         self.canvas = canvas
 
         self.width = self.height = canvas_width
@@ -31,20 +29,38 @@ class App:
         self.frame_rate = frame_rate
         self.highscore_file_path = highscore_file_path
 
+        # Steps label
+        steps_label = Label(window, text = 'Movements: 0', font = ('Helvetica 30 bold'))
+        self.steps_label = steps_label
+
+        # Packing all elements into the window
+        # Order is crucial
+        highscore_label.pack()
+        canvas.pack()
+        steps_label.pack()
+
+    def update_steps_label(self, steps: int):
+        self.steps_label.config(text = f'Number of Steps: {steps}')
+
+    def update_highscore_label(self, score: int, highscore: int):
+        self.highscore_label.config(text = f'Score: {score} | Highscore: {highscore}')
+
     def create_grid(self, rows: int, cols: int):
         self.grid = Grid(rows, cols, self.highscore_file_path, image_width = min(self.width, self.height) // cols) # quick temporary fix for image_width
-        self.highscore_label.config(text = f'Score: {self.grid.score} | Highscore: {self.grid.highscore}')
+        self.update_highscore_label(self.grid.score, self.grid.highscore)
         self.window.bind('<Key>', self.grid.snake.change_direction)
 
     def update(self):
-        return self.grid.update(self.canvas, self.highscore_label)
+        self.canvas.delete('all')
+        is_running = self.grid.update(self.canvas, self.update_highscore_label)
+        self.update_steps_label(self.grid.snake.steps)
+        return is_running
 
     def destroy(self):
         self.window.destroy()
 
     def mainloop(self):
-        while self.isRunning:
-            self.isRunning = self.update()
+        while self.update():
             sleep(1 / self.frame_rate)
 
     def save_highscore(self):
