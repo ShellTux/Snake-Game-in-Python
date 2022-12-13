@@ -28,39 +28,7 @@ class Grid:
         self.highscore = max_highscore
 
     def show(self, canvas: Canvas):
-        width = canvas.winfo_width()
-        height = canvas.winfo_height()
-        dw = width // self.cols
-        dh = height // self.rows
-
-        for i in range(self.rows):
-            for j in range(self.cols):
-                x = j * dw
-                y = i * dh
-                canvas.create_rectangle(
-                        x,
-                        y,
-                        x + dw,
-                        y + dh,
-                        fill = 'grey',
-                        outline = 'white'
-                        )
-                
-        # Showing lines
-        for i in range(self.rows):
-            canvas.create_line(0, dh * i, width, dh * i, fill = 'white')
-
-        # Showing columns
-        for j in range(self.cols):
-            canvas.create_line(dw * j, 0, dw * j, height, fill = 'white')
-
-        # Show food
-        food_x = self.food.y * dw
-        food_y = self.food.x * dh
-        canvas.create_image(food_x, food_y, image = self.food_image, anchor = 'nw')
-
-        # Show snake
-        self.snake.show(canvas, dw, dh)
+        pass
 
     def check_if_eating_food(self, update_highscore_label):
         # Check if snake is eating the food
@@ -114,13 +82,9 @@ class Grid:
         self.food = Vector(chosen_cell[0], chosen_cell[1])
 
     def update(self, canvas: Canvas, update_highscore_label):
-        # Clear screen
-        canvas.delete('all')
         self.snake.move()
         # Check if collided with walls or with it's own body
         if (self.check_collision()):
             return False
         self.check_if_eating_food(update_highscore_label)
-        self.show(canvas)
-        canvas.update()
         return True

@@ -2,6 +2,7 @@
 from tkinter import Tk, Canvas, Label
 from time import sleep
 from Grid import Grid
+from Robot import Robot
 
 ROWS = COLS = 20
 WIDTH = 600
@@ -41,6 +42,8 @@ class App:
         canvas.pack()
         steps_label.pack()
 
+        self.is_robot_playing = True
+
     def update_steps_label(self, steps: int):
         self.steps_label.config(text = f'Number of Steps: {steps}')
 
@@ -50,13 +53,54 @@ class App:
     def create_grid(self, rows: int, cols: int):
         self.grid = Grid(rows, cols, self.highscore_file_path, image_width = min(self.width, self.height) // cols) # quick temporary fix for image_width
         self.update_highscore_label(self.grid.score, self.grid.highscore)
-        self.window.bind('<Key>', self.grid.snake.change_direction)
+        if not self.is_robot_playing:
+            self.window.bind('<Key>', self.grid.snake.change_direction)
+        else:
+            self.robot = Robot(self.grid)
 
     def update(self):
         self.canvas.delete('all')
+        self.robot.play()
         is_running = self.grid.update(self.canvas, self.update_highscore_label)
         self.update_steps_label(self.grid.snake.steps)
+        self.show()
         return is_running
+
+    def show(self):
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        dw = width // self.grid.cols
+        dh = height // self.grid.rows
+
+        for i in range(self.grid.rows):
+            for j in range(self.grid.cols):
+                x = j * dw
+                y = i * dh
+                self.canvas.create_rectangle(
+                        x,
+                        y,
+                        x + dw,
+                        y + dh,
+                        fill = 'grey',
+                        outline = 'white'
+                        )
+                
+        # Showing lines
+        for i in range(self.grid.rows):
+            self.canvas.create_line(0, dh * i, width, dh * i, fill = 'white')
+
+        # Showing columns
+        for j in range(self.grid.cols):
+            self.canvas.create_line(dw * j, 0, dw * j, height, fill = 'white')
+
+        # Show food
+        food_x = self.grid.food.y * dw
+        food_y = self.grid.food.x * dh
+        self.canvas.create_image(food_x, food_y, image = self.grid.food_image, anchor = 'nw')
+
+        # Show snake
+        self.grid.snake.show(self.canvas, dw, dh)
+        self.canvas.update()
 
     def destroy(self):
         self.window.destroy()
