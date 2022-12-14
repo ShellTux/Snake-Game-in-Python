@@ -21,7 +21,7 @@ class App:
         window.resizable(False, False)
         self.window = window
         # Label Setup
-        highscore_label = Label(window, text = f'Score: 0 | Highscore: 0', font = ('Hlevetica 30 bold'))
+        highscore_label = Label(window, text = f'Score: 0 | Highscore: 0', font = ('Helvetica 30 bold'))
         self.highscore_label = highscore_label
         # Canvas setup
         canvas = Canvas(window, width = canvas_width, height = canvas_width, bg = background_color)
@@ -109,6 +109,8 @@ class App:
         while self.update():
             sleep(1 / self.frame_rate)
 
+        self.window.mainloop()
+
     def save_highscore(self):
         all_highscores: list[int] = []
         try:
@@ -132,7 +134,7 @@ class App:
 
 
 if __name__ == '__main__':
-    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 120)
+    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 60)
     myApp.create_grid(ROWS, COLS)
 
     myApp.mainloop()

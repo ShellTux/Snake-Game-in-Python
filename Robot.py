@@ -13,7 +13,7 @@ class Robot:
             next_position = self.grid.snake.body[0] + move
             return (0 <= next_position.x < self.grid.rows and
                     0 <= next_position.y < self.grid.cols and
-                    all([ next_position != segment for segment in self.grid.snake.body[1:] ])
+                    next_position not in self.grid.snake.body[1:]
                     )
 
         def distance_squared_to_food(move: Vector):
@@ -29,6 +29,9 @@ class Robot:
                 ]
 
         possible_moves = list(filter(is_valid_move, possible_moves))
+
+        if len(possible_moves) == 0:
+            return
 
         next_move = min(possible_moves, key = distance_squared_to_food)
 
