@@ -109,6 +109,9 @@ class App:
         while self.update():
             sleep(1 / self.frame_rate)
 
+        # Add a mouse release event to the canvas element to close the window
+        self.canvas.bind('<ButtonRelease>', lambda _: self.window.destroy())
+
         self.window.mainloop()
 
     def save_highscore(self):
