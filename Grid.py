@@ -27,12 +27,13 @@ class Grid:
             max_highscore = 0
         self.highscore = max_highscore
 
-    def check_if_eating_food(self, update_highscore_label):
+    def check_if_eating_food(self, update_highscore_label, generate_path):
         # Check if snake is eating the food
         if self.snake.body[0] != self.food:
             return False
 
         self.generate_food()
+        generate_path()
         self.snake.bolus.append(0)
         self.snake.grow()
         self.score += 10
@@ -78,10 +79,10 @@ class Grid:
         chosen_cell = choice(possible_cels)
         self.food = Vector(chosen_cell[0], chosen_cell[1])
 
-    def update(self, canvas: Canvas, update_highscore_label):
+    def update(self, canvas: Canvas, update_highscore_label, generate_path):
         self.snake.move()
         # Check if collided with walls or with it's own body
         if (self.check_collision()):
             return False
-        self.check_if_eating_food(update_highscore_label)
+        self.check_if_eating_food(update_highscore_label, generate_path)
         return True

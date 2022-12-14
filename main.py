@@ -60,7 +60,7 @@ class App:
 
     def update(self):
         self.canvas.delete('all')
-        is_running = self.grid.update(self.canvas, self.update_highscore_label)
+        is_running = self.grid.update(self.canvas, self.update_highscore_label, self.robot.generate_path)
         self.robot.play()
         self.update_steps_label(self.grid.snake.steps)
         self.show()
@@ -106,6 +106,7 @@ class App:
         while self.update():
             sleep(1 / self.frame_rate)
 
+    def wait_for_quit(self):
         # Add a mouse release event to the canvas element to close the window
         self.canvas.bind('<ButtonRelease>', lambda _: self.window.destroy())
         self.window.bind('q', lambda _: self.window.destroy())
@@ -135,10 +136,10 @@ class App:
 
 
 if __name__ == '__main__':
-    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 60)
+    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 10)
     myApp.create_grid(ROWS, COLS)
 
     myApp.mainloop()
-
     print('You Lose!!!')
+    myApp.wait_for_quit()
     myApp.save_highscore()
