@@ -102,15 +102,13 @@ class App:
         self.grid.snake.show(self.canvas, dw, dh)
         self.canvas.update()
 
-    def destroy(self):
-        self.window.destroy()
-
     def mainloop(self):
         while self.update():
             sleep(1 / self.frame_rate)
 
         # Add a mouse release event to the canvas element to close the window
         self.canvas.bind('<ButtonRelease>', lambda _: self.window.destroy())
+        self.window.bind('q', lambda _: self.window.destroy())
 
         self.window.mainloop()
 
