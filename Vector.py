@@ -6,6 +6,9 @@ class Vector:
     def __add__(self, other_vector):
         return Vector(self.x + other_vector.x, self.y + other_vector.y)
 
+    def __sub__(self, other_vector):
+        return Vector(self.x - other_vector.x, self.y - other_vector.y)
+
     def __mul__(self, scalar: int | float):
         return Vector(self.x * scalar, self.y * scalar)
 
@@ -28,6 +31,9 @@ class Vector:
     def __iter__(self):
         return iter((self.x, self.y))
 
+    def __hash__(self):
+        return hash((self.x, self.y))
+
     def copy(self):
         return Vector(self.x, self.y)
 
@@ -41,3 +47,10 @@ def lerp(vector1: Vector, vector2: Vector, interpolation: float):
             vector1.x + (vector2.x - vector1.x) * interpolation,
             vector1.y + (vector2.y - vector1.y) * interpolation
             )
+
+if __name__ == '__main__':
+    # Add test
+    print(Vector(1,2) + Vector(-2, 4))
+    # Subtract test
+    print(Vector(3,-4) - Vector(-1, 2))
+    print(hash(Vector(1,0)))
