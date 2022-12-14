@@ -56,12 +56,16 @@ class App:
         self.update_steps_label(self.grid.snake.steps)
         return is_running
 
-    def destroy(self):
-        self.window.destroy()
-
     def mainloop(self):
         while self.update():
             sleep(1 / self.frame_rate)
+
+        # Bind button release event to canvas element to close window
+        self.canvas.bind('<ButtonRelease>', lambda _: self.window.destroy())
+        # Bind q key press to window element to close window
+        self.window.bind('q', lambda _: self.window.destroy())
+
+        self.canvas.mainloop()
 
     def save_highscore(self):
         all_highscores: list[int] = []
