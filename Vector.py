@@ -41,6 +41,9 @@ class Vector:
         self.x = min(max(self.x, minimum_vector.x), maximum_vector.x)
         self.y = min(max(self.y, minimum_vector.y), maximum_vector.y)
         return Vector(self.x, self.y)
+    
+    def tuple(self):
+        return (self.x, self.y)
 
 def lerp(vector1: Vector, vector2: Vector, interpolation: float):
     return Vector(
