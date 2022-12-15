@@ -4,7 +4,7 @@ from time import sleep
 from Grid import Grid
 from Robot import Robot
 
-ROWS = COLS = 20
+ROWS = COLS = 30
 WIDTH = 600
 WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
@@ -60,8 +60,8 @@ class App:
 
     def update(self):
         self.canvas.delete('all')
-        is_running = self.grid.update(self.canvas, self.update_highscore_label, self.robot.generate_path)
-        self.robot.play()
+        is_running = self.grid.update(self.canvas, self.update_highscore_label)
+        self.robot.play(self.grid.came_from_path)
         self.update_steps_label(self.grid.snake.steps)
         self.show()
         return is_running
@@ -136,7 +136,7 @@ class App:
 
 
 if __name__ == '__main__':
-    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 10)
+    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 120)
     myApp.create_grid(ROWS, COLS)
 
     myApp.mainloop()
