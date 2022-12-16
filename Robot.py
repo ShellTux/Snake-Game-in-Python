@@ -14,5 +14,3 @@ class Robot:
             move = Vector(next_pos[0] - current_pos[0], next_pos[1] - current_pos[1])
             
             self.grid.snake.moves_buffer.append(move)
-        else:
-            pass
