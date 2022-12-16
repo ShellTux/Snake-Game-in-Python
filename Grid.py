@@ -81,18 +81,25 @@ class Grid:
         chosen_cell = choice(possible_cels)
         self.food = Vector(chosen_cell[0], chosen_cell[1])
 
-    def generate_path(self):
-        # Doesn't make sense why Vector(j, i)
-        # This needs some inspection to see where is the bug
-        m = [
-                [ False for j in range(self.cols) ] for i in range(self.rows)
-                ]
-        for segment in self.snake.body[1:]:
-            m[int(segment.x)][int(segment.y)] = True
+    def generate_path(self, start: tuple[int, int] = tuple(), goal: tuple[int, int] = tuple(), *, m: list[list[bool]] = [], ) -> dict[tuple[int, int], tuple[int, int]]:
+        # If matrix not defined, define matrix where the cell is True
+        # if there is a snake body segment
+        if len(m) == 0:
+            m = [
+                    [ False for j in range(self.cols) ] for i in range(self.rows)
+                    ]
+            for segment in self.snake.body[1:]:
+                m[int(segment.x)][int(segment.y)] = True
 
-        food_pos = tuple(map(int, self.food.tuple()))
-        snake_head_pos = tuple(map(int, self.snake.body[0].tuple()))
-        self.came_from_path = A_star(m, food_pos, snake_head_pos)
+        # If start not defined, define food as start
+        if len(start) == 0:
+            start = tuple(map(int, self.food.tuple()))
+
+        # if goal not defined, define goal as snake head
+        if len(goal) == 0:
+            goal = tuple(map(int, self.snake.body[0].tuple()))
+        self.came_from_path = A_star(m, start, goal)
+        return self.came_from_path
 
     def update(self, canvas: Canvas, update_highscore_label):
         self.snake.move()
