@@ -62,7 +62,7 @@ class Snake:
         if self.velocity != Vector(0, 0):
             self.steps += 1
 
-    def show(self, canvas: Canvas, dw: int, dh: int):
+    def show(self, canvas: Canvas, dw: float, dh: float):
         for i in range(len(self.body) - 1, -1, -1):
             fill_color = self.head_color if i == 0 else rgb_to_hex(tuple(map(lambda x: int(x * 255), hls_to_rgb(1 / i, 0.5, 1)))) #self.body_color 
             width_scale: float = max(1 - i * 0.05, 0.85)

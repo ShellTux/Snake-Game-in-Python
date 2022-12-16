@@ -5,7 +5,7 @@ from Grid import Grid
 from Robot import Robot
 
 ROWS = COLS = 30
-WIDTH = 600
+WIDTH = 800
 WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
 HIGHSCORE_FILE_PATH: str = 'highscore.txt'
@@ -69,8 +69,8 @@ class App:
     def show(self):
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
-        dw = width // self.grid.cols
-        dh = height // self.grid.rows
+        dw: float = width / self.grid.cols
+        dh: float = height / self.grid.rows
 
         for i in range(self.grid.rows):
             for j in range(self.grid.cols):
