@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from tkinter import Tk, Canvas, Label
+from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, StringVar
 from time import sleep
 from Grid import Grid
-from Robot import Robot
+from Robot import Robot, strategies
 
 ROWS = COLS = 30
 WIDTH = 800
@@ -12,9 +12,8 @@ HIGHSCORE_FILE_PATH: str = 'highscore.txt'
 
 # Autoplay branch fingerprint
 
-
 class App:
-    def __init__(self, title: str, canvas_width: int, *, background_color: str = BACKGROUND_COLOR, frame_rate: int = 10, highscore_file_path: str = HIGHSCORE_FILE_PATH):
+    def __init__(self, title: str, canvas_width: int, *, background_color: str = BACKGROUND_COLOR, fps: int = 10, highscore_file_path: str = HIGHSCORE_FILE_PATH):
         # Window setup
         window = Tk()
         window.title(title)
@@ -26,23 +25,44 @@ class App:
         # Canvas setup
         canvas = Canvas(window, width = canvas_width, height = canvas_width, bg = background_color)
         self.canvas = canvas
-
+        # Width and height of the canvas
         self.width = self.height = canvas_width
-        self.isRunning = True
-        self.frame_rate = frame_rate
-        self.highscore_file_path = highscore_file_path
 
-        # Steps label
-        steps_label = Label(window, text = 'Movements: 0', font = ('Helvetica 30 bold'))
+        self.fps: int = fps
+        self.highscore_file_path: str = highscore_file_path
+        self.is_robot_playing: bool = True
+
+        font = lambda *, family = 'Helvetica', size = 30, style = 'bold': f'{family} {size} {style}'
+
+        # Steps label setup
+        steps_label: Label = Label(window, text = 'Movements: 0', font = font())
         self.steps_label = steps_label
+
+        # Check button setup
+        cpu_check_button: Checkbutton = Checkbutton(
+                window,
+                text = 'CPU', 
+                font = font(size = 15),
+                onvalue = True,
+                offvalue = False,
+                state = 'disabled'
+                )
+
+        # Turn on the state of check button
+        cpu_check_button.select()
+        self.cpu_check_button: Checkbutton = cpu_check_button
+
+
+        # Robot Strategies option menu setup
+        strategies_menu: OptionMenu = OptionMenu(window, StringVar(window), *strategies)
 
         # Packing all elements into the window
         # Order is crucial
         highscore_label.pack()
         canvas.pack()
         steps_label.pack()
-
-        self.is_robot_playing = True
+        cpu_check_button.pack()
+        strategies_menu.pack()
 
     def update_steps_label(self, steps: int):
         self.steps_label.config(text = f'Number of Steps: {steps}')
@@ -104,7 +124,10 @@ class App:
 
     def mainloop(self):
         while self.update():
-            sleep(1 / self.frame_rate)
+            sleep(1 / self.fps)
+
+        # Lost
+        self.cpu_check_button.config(state = 'normal')
 
     def wait_for_quit(self):
         # Add a mouse release event to the canvas element to close the window
@@ -136,7 +159,7 @@ class App:
 
 
 if __name__ == '__main__':
-    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, frame_rate = 120)
+    myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, fps = 120)
     myApp.create_grid(ROWS, COLS)
 
     myApp.mainloop()

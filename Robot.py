@@ -1,9 +1,16 @@
 from Grid import Grid
 from Vector import Vector
 
+strategies: tuple[str, str, str] = (
+        'A* path finding algorithm',
+        'Nearest Neighbor',
+        'Hamiltonian Cycle'
+        )
+
 class Robot:
     def __init__(self, grid: Grid):
         self.grid = grid
+        self.strategy = strategies[0]
         self.came_from: dict[tuple[int, int], tuple[int, int]] = {}
 
     def play(self, came_from_path: dict[tuple[int, int], tuple[int, int]]):
