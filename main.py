@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, StringVar
+from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, StringVar, IntVar, BooleanVar
 from time import sleep
 from Grid import Grid
 from Robot import Robot, strategies
@@ -21,15 +21,27 @@ class App:
         window.title(title)
         window.resizable(False, False)
         self.window = window
+
+        # Some other variables
+        # Width and height of the canvas
+        self.width = self.height = canvas_width
+        self.is_robot_playing = BooleanVar()
+        self.fps: int = fps
+        self.highscore_file_path: str = highscore_file_path
+        self.choice: str = ''
+
         # Label Setup
         highscore_label = Label(window, text = f'Score: 0 | Highscore: 0', font = font(size = 30))
         self.highscore_label = highscore_label
+
         # Canvas setup
         canvas = Canvas(window, width = canvas_width, height = canvas_width, bg = background_color)
         self.canvas = canvas
+
         # Steps label setup
         steps_label: Label = Label(window, text = 'Movements: 0', font = font())
         self.steps_label = steps_label
+
         # Check button setup
         cpu_check_button: Checkbutton = Checkbutton(
                 window,
@@ -37,21 +49,15 @@ class App:
                 font = font(size = 15),
                 onvalue = True,
                 offvalue = False,
-                state = 'normal'
+                variable = self.is_robot_playing,
+                state = 'normal',
                 )
         # Turn on the state of check button
         cpu_check_button.select()
         self.cpu_check_button: Checkbutton = cpu_check_button
+
         # Robot Strategies option menu setup
         strategies_menu: OptionMenu = OptionMenu(window, StringVar(window), *strategies)
-
-        # Width and height of the canvas
-        self.width = self.height = canvas_width
-        self.fps: int = fps
-        self.highscore_file_path: str = highscore_file_path
-        self.is_robot_playing: bool = True
-        self.choice: str = ''
-
 
         # Packing all elements into the window
         # Order is crucial
@@ -70,15 +76,16 @@ class App:
     def create_grid(self, rows: int, cols: int):
         self.grid = Grid(rows, cols, self.highscore_file_path, image_width = min(self.width, self.height) // cols) # quick temporary fix for image_width
         self.update_highscore_label(self.grid.score, self.grid.highscore)
-        if not self.is_robot_playing:
-            self.window.bind('<Key>', self.grid.snake.change_direction)
-        else:
+        if self.is_robot_playing.get():
             self.robot = Robot(self.grid)
+        else:
+            self.window.bind('<Key>', self.grid.snake.change_direction)
 
     def update(self):
         self.canvas.delete('all')
         is_running = self.grid.update(self.canvas, self.update_highscore_label)
-        self.robot.play(self.grid.came_from_path)
+        if self.is_robot_playing.get():
+            self.robot.play(self.grid.came_from_path)
         self.update_steps_label(self.grid.snake.steps)
         self.show()
         return is_running
@@ -146,13 +153,17 @@ class App:
             # Start playing
             # Disable cpu check button
             self.cpu_check_button.config(state = 'disabled')
+            fps = self.fps if self.is_robot_playing.get() else 10
+            # Create Grid
+            self.create_grid(ROWS, COLS)
             while self.update():
-                sleep(1 / self.fps)
+                sleep(1 / fps)
 
             # Lost
             print('You Lose!!!')
             self.save_highscore()
-            # myApp.wait_for_quit()
+            # Re-enable cpu check button
+            self.cpu_check_button.config(state = 'normal')
 
     def main_menu(self):
         menu_entries = (
@@ -206,6 +217,5 @@ class App:
 
 if __name__ == '__main__':
     myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, fps = 120)
-    myApp.create_grid(ROWS, COLS)
 
     myApp.main_loop()
