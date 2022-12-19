@@ -153,9 +153,9 @@ class App:
 
         # Lost
         print('You Lose!!!')
-        myApp.wait_for_quit()
-        myApp.save_highscore()
         self.cpu_check_button.config(state = 'normal')
+        myApp.save_highscore()
+        myApp.wait_for_quit()
 
     def main_menu(self):
         menu_entries = (
@@ -183,14 +183,12 @@ class App:
 
         # Button Release callback
         def press_menu(event):
-            print(event)
             choice: str = ''
             for i in range(len(menu_entries)):
                 text_y: float = self.height * .5 + i * spacing
                 if abs(event.y - text_y) < .5 * font_size:
                     choice = menu_entries[i]
 
-            print(choice)
             if choice == '':
                 return
             elif choice == 'Play':
