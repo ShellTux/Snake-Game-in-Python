@@ -5,7 +5,7 @@ from Grid import Grid
 from Robot import Robot, strategies
 
 ROWS = COLS = 30
-WIDTH = 800
+WIDTH = 600
 WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
 HIGHSCORE_FILE_PATH: str = 'highscore.txt'
@@ -172,7 +172,7 @@ class App:
         # Mouse movement callback
         def move_cursor(event):
             # Skip highlight if cursor x position is not between these limits
-            if event.x < 338 or event.x > 480:
+            if abs(event.x - self.width * .5) > 50:
                 return
 
             for i, entry in enumerate(menu_entries):
