@@ -12,6 +12,8 @@ HIGHSCORE_FILE_PATH: str = 'highscore.txt'
 
 # Autoplay branch fingerprint
 
+font = lambda *, family = 'Helvetica', size = 30, style = 'bold': f'{family} {size} {style}'
+
 class App:
     def __init__(self, title: str, canvas_width: int, *, background_color: str = BACKGROUND_COLOR, fps: int = 10, highscore_file_path: str = HIGHSCORE_FILE_PATH):
         # Window setup
@@ -31,8 +33,6 @@ class App:
         self.fps: int = fps
         self.highscore_file_path: str = highscore_file_path
         self.is_robot_playing: bool = True
-
-        font = lambda *, family = 'Helvetica', size = 30, style = 'bold': f'{family} {size} {style}'
 
         # Steps label setup
         steps_label: Label = Label(window, text = 'Movements: 0', font = font())
@@ -122,20 +122,6 @@ class App:
         self.grid.snake.show(self.canvas, dw, dh)
         self.canvas.update()
 
-    def mainloop(self):
-        while self.update():
-            sleep(1 / self.fps)
-
-        # Lost
-        self.cpu_check_button.config(state = 'normal')
-
-    def wait_for_quit(self):
-        # Add a mouse release event to the canvas element to close the window
-        self.canvas.bind('<ButtonRelease>', lambda _: self.window.destroy())
-        self.window.bind('q', lambda _: self.window.destroy())
-
-        self.window.mainloop()
-
     def save_highscore(self):
         all_highscores: list[int] = []
         try:
@@ -157,12 +143,78 @@ class App:
             if self.grid.highscore not in all_highscores:
                 file.write(f'{self.grid.highscore}\n')
 
+    def main_loop(self):
+        # Main menu
+        self.main_menu()
+
+        # Start playing
+        while self.update():
+            sleep(1 / self.fps)
+
+        # Lost
+        print('You Lose!!!')
+        myApp.wait_for_quit()
+        myApp.save_highscore()
+        self.cpu_check_button.config(state = 'normal')
+
+    def main_menu(self):
+        menu_entries = (
+                'Play',
+                'Quit'
+                )
+        font_size: int = 40
+        spacing: int = 100
+        font_family: str = font(size = font_size)
+        for i, entry in enumerate(menu_entries):
+            self.canvas.create_text(self.width * .5, self.height * .5 + i * spacing, text = entry, fill = 'white', font = font_family)
+
+
+        # Mouse movement callback
+        def move_cursor(event):
+            # Skip highlight if cursor x position is not between these limits
+            if event.x < 338 or event.x > 480:
+                return
+
+            for i, entry in enumerate(menu_entries):
+                text_y: float = self.height * .5 + i * spacing
+                self.canvas.create_text(self.width * .5, text_y, text = entry, font = font_family, 
+                                        fill = 'red' if abs(event.y - text_y) < .5 * font_size else 'white'
+                                        )
+
+        # Button Release callback
+        def press_menu(event):
+            print(event)
+            choice: str = ''
+            for i in range(len(menu_entries)):
+                text_y: float = self.height * .5 + i * spacing
+                if abs(event.y - text_y) < .5 * font_size:
+                    choice = menu_entries[i]
+
+            print(choice)
+            if choice == '':
+                return
+            elif choice == 'Play':
+                # Exit main loop and proceed to play game in self.main_loop
+                self.canvas.quit()
+            elif choice == 'Quit':
+                exit()
+
+        self.canvas.bind('<ButtonRelease>', lambda event: press_menu(event))
+        self.canvas.bind('<Motion>', move_cursor)
+        self.canvas.mainloop()
+        self.canvas.unbind('<ButtonRelease>')
+        self.canvas.unbind('<Motion>')
+
+    def wait_for_quit(self):
+        # Add a mouse release event to the canvas element to close the window
+        self.canvas.bind('<ButtonRelease>', lambda _: self.window.destroy())
+        self.window.bind('q', lambda _: self.window.destroy())
+
+        self.window.mainloop()
+
 
 if __name__ == '__main__':
     myApp = App(WINDOW_TITLE, WIDTH, background_color = BACKGROUND_COLOR, fps = 120)
     myApp.create_grid(ROWS, COLS)
 
-    myApp.mainloop()
-    print('You Lose!!!')
-    myApp.wait_for_quit()
-    myApp.save_highscore()
+    myApp.main_loop()
