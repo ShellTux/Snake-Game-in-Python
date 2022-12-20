@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, StringVar, IntVar, BooleanVar
+from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, StringVar, BooleanVar
 from time import sleep
 from Grid import Grid
 from Robot import Robot, strategies
 
 ROWS = COLS = 10
-WIDTH = 800
+WIDTH = 500
 WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
 HIGHSCORE_FILE_PATH: str = 'highscore.txt'
@@ -25,10 +25,10 @@ class App:
         # Some other variables
         # Width and height of the canvas
         self.width = self.height = canvas_width
-        self.is_robot_playing = BooleanVar()
         self.fps: int = fps
         self.highscore_file_path: str = highscore_file_path
-        self.choice: str = ''
+        self.is_robot_playing: BooleanVar = BooleanVar()
+        self.strategy: StringVar = StringVar()
 
         # Label Setup
         highscore_label = Label(window, text = f'Score: 0 | Highscore: 0', font = font(size = 30))
@@ -57,7 +57,9 @@ class App:
         self.cpu_check_button: Checkbutton = cpu_check_button
 
         # Robot Strategies option menu setup
-        strategies_menu: OptionMenu = OptionMenu(window, StringVar(window), *strategies)
+        # Set choice to be first element on strategies
+        self.strategy.set(strategies[0])
+        strategies_menu: OptionMenu = OptionMenu(window, self.strategy, *strategies)
 
         # Packing all elements into the window
         # Order is crucial
@@ -77,7 +79,7 @@ class App:
         self.grid = Grid(rows, cols, self.highscore_file_path, image_width = min(self.width, self.height) // cols) # quick temporary fix for image_width
         self.update_highscore_label(self.grid.score, self.grid.highscore)
         if self.is_robot_playing.get():
-            self.robot = Robot(self.grid)
+            self.robot = Robot(self.grid, self.strategy.get())
         else:
             self.window.bind('<Key>', self.grid.snake.change_direction)
 
@@ -85,7 +87,7 @@ class App:
         self.canvas.delete('all')
         is_running = self.grid.update(self.canvas, self.update_highscore_label)
         if self.is_robot_playing.get():
-            self.robot.play(self.grid.came_from_path)
+            self.robot.play()
         self.update_steps_label(self.grid.snake.steps)
         self.show()
         return is_running
@@ -160,7 +162,7 @@ class App:
                 sleep(1 / fps)
 
             # Lost
-            print('You Lose!!!')
+            print('You Lost!!!')
             self.save_highscore()
             # Re-enable cpu check button
             self.cpu_check_button.config(state = 'normal')
@@ -205,14 +207,11 @@ class App:
             elif choice == 'Quit':
                 exit()
 
-            self.choice = choice
-
         self.canvas.bind('<ButtonRelease>', lambda event: press_menu(event))
         self.canvas.bind('<Motion>', move_cursor)
         self.canvas.mainloop()
         self.canvas.unbind('<ButtonRelease>')
         self.canvas.unbind('<Motion>')
-        return self.choice
 
 
 if __name__ == '__main__':

@@ -81,7 +81,7 @@ class Grid:
         chosen_cell = choice(possible_cels)
         self.food = Vector(chosen_cell[0], chosen_cell[1])
 
-    def generate_path(self, start: tuple[int, int] = tuple(), goal: tuple[int, int] = tuple(), *, m: list[list[bool]] = [], ) -> dict[tuple[int, int], tuple[int, int]]:
+    def generate_path(self, start: tuple[int, int] = tuple(), goal: tuple[int, int] = tuple(), *, m: list[list[bool]] = [], ):
         # If matrix not defined, define matrix where the cell is True
         # if there is a snake body segment
         if len(m) == 0:
@@ -99,7 +99,6 @@ class Grid:
         if len(goal) == 0:
             goal = tuple(map(int, self.snake.body[0].tuple()))
         self.came_from_path = A_star(m, start, goal)
-        return self.came_from_path
 
     def update(self, canvas: Canvas, update_highscore_label):
         self.snake.move()
