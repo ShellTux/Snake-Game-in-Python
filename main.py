@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, StringVar, BooleanVar
+from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, Scale
+from tkinter import DoubleVar, StringVar, BooleanVar, HORIZONTAL
 from time import sleep
 from Grid import Grid
 from Robot import Robot, strategies
 
-ROWS = COLS = 10
-WIDTH = 500
+ROWS = COLS = 30
+WIDTH = 800
 WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
 HIGHSCORE_FILE_PATH: str = 'highscore.txt'
@@ -25,10 +26,12 @@ class App:
         # Some other variables
         # Width and height of the canvas
         self.width = self.height = canvas_width
-        self.fps: int = fps
+        # self.fps: int = fps
         self.highscore_file_path: str = highscore_file_path
         self.is_robot_playing: BooleanVar = BooleanVar()
         self.strategy: StringVar = StringVar()
+        self.fps: DoubleVar = DoubleVar()
+        self.fps.set(120)
 
         # Label Setup
         highscore_label = Label(window, text = f'Score: 0 | Highscore: 0', font = font(size = 30))
@@ -61,6 +64,15 @@ class App:
         self.strategy.set(strategies[0])
         strategies_menu: OptionMenu = OptionMenu(window, self.strategy, *strategies)
 
+        # Scale/Slide element
+        fps_slider: Scale = Scale(window, {
+            'variable': self.fps,
+            'from_': 1,
+            'to': 240,
+            'orient' : HORIZONTAL
+            })
+        self.fps_slider: Scale = fps_slider
+
         # Packing all elements into the window
         # Order is crucial
         highscore_label.pack()
@@ -68,6 +80,7 @@ class App:
         steps_label.pack()
         cpu_check_button.pack()
         strategies_menu.pack()
+        fps_slider.pack()
 
     def update_steps_label(self, steps: int):
         self.steps_label.config(text = f'Number of Steps: {steps}')
@@ -155,11 +168,12 @@ class App:
             # Start playing
             # Disable cpu check button
             self.cpu_check_button.config(state = 'disabled')
-            fps = self.fps if self.is_robot_playing.get() else 10
             # Create Grid
             self.create_grid(ROWS, COLS)
             while self.update():
-                sleep(1 / fps)
+                fps: float = self.fps.get()
+                if fps < 240:
+                    sleep(1 / fps)
 
             if self.grid.win:
                 print('You won!!!')
