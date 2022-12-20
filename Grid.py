@@ -13,6 +13,7 @@ class Grid:
         food_image = PhotoImage(file = 'apple.png')
         self.food_image = food_image.subsample(food_image.width() // image_width)
         self.score = 0
+        self.win: bool = False
 
         max_highscore = 0
         try:
@@ -78,8 +79,11 @@ class Grid:
             if position in possible_cels:
                 possible_cels.remove(position)
 
-        chosen_cell = choice(possible_cels)
-        self.food = Vector(chosen_cell[0], chosen_cell[1])
+        if len(possible_cels) != 0:
+            chosen_cell = choice(possible_cels)
+            self.food = Vector(chosen_cell[0], chosen_cell[1])
+        else:
+            self.win = True
 
     def generate_path(self, start: tuple[int, int] = tuple(), goal: tuple[int, int] = tuple(), *, m: list[list[bool]] = [], ):
         # If matrix not defined, define matrix where the cell is True

@@ -161,8 +161,10 @@ class App:
             while self.update():
                 sleep(1 / fps)
 
-            # Lost
-            print('You Lost!!!')
+            if self.grid.win:
+                print('You won!!!')
+            else:
+                print('You Lost!!!')
             self.save_highscore()
             # Re-enable cpu check button
             self.cpu_check_button.config(state = 'normal')
