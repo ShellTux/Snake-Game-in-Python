@@ -10,8 +10,8 @@ class Grid:
         self.snake = Snake(randint(0, rows - 1), randint(0, cols - 1))
         self.food = Vector(randint(0, rows - 1), randint(0, cols - 1))
         self.food_color = 'green'
-        food_image = PhotoImage(file = 'apple.png')
-        self.food_image = food_image.subsample(food_image.width() // image_width)
+        food_image: PhotoImage = PhotoImage(file = 'apple.png')
+        self.food_image: PhotoImage = food_image.subsample(food_image.width() // image_width)
         self.score = 0
         self.win: bool = False
 

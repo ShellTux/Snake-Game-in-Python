@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 from tkinter import Tk, Canvas, Label, Checkbutton, OptionMenu, Scale
 from tkinter import DoubleVar, StringVar, BooleanVar, HORIZONTAL
+from colorsys import hls_to_rgb
 from time import sleep
 from Grid import Grid
 from Robot import Robot, strategies
+from PIL import Image
 
 ROWS = COLS = 30
 WIDTH = 800
@@ -11,9 +13,12 @@ WINDOW_TITLE: str = 'Snake Game'
 BACKGROUND_COLOR: str = 'black'
 HIGHSCORE_FILE_PATH: str = 'highscore.txt'
 
+BACKGROUND_IMAGE = Image.new('RGB', (WIDTH, WIDTH), color = 'black')
+
 # Autoplay branch fingerprint
 
 font = lambda *, family = 'Helvetica', size = 30, style = 'bold': f'{family} {size} {style}'
+rgb_to_hex = lambda rgb: '#%02x%02x%02x' % rgb
 
 class App:
     def __init__(self, title: str, canvas_width: int, *, background_color: str = BACKGROUND_COLOR, fps: int = 10, highscore_file_path: str = HIGHSCORE_FILE_PATH):
@@ -26,8 +31,8 @@ class App:
         # Some other variables
         # Width and height of the canvas
         self.width = self.height = canvas_width
-        # self.fps: int = fps
         self.highscore_file_path: str = highscore_file_path
+        self.elements_to_delete = []
         self.is_robot_playing: BooleanVar = BooleanVar()
         self.strategy: StringVar = StringVar()
         self.fps: DoubleVar = DoubleVar()
@@ -39,7 +44,7 @@ class App:
 
         # Canvas setup
         canvas = Canvas(window, width = canvas_width, height = canvas_width, bg = background_color)
-        self.canvas = canvas
+        self.canvas: Canvas = canvas
 
         # Steps label setup
         steps_label: Label = Label(window, text = 'Movements: 0', font = font())
@@ -91,26 +96,8 @@ class App:
     def create_grid(self, rows: int, cols: int):
         self.grid = Grid(rows, cols, self.highscore_file_path, image_width = min(self.width, self.height) // cols) # quick temporary fix for image_width
         self.update_highscore_label(self.grid.score, self.grid.highscore)
-        if self.is_robot_playing.get():
-            self.robot = Robot(self.grid, self.strategy.get())
-        else:
-            self.window.bind('<Key>', self.grid.snake.change_direction)
-
-    def update(self):
-        self.canvas.delete('all')
-        is_running = self.grid.update(self.canvas, self.update_highscore_label)
-        if self.is_robot_playing.get():
-            self.robot.play()
-        self.update_steps_label(self.grid.snake.steps)
-        self.show()
-        return is_running
-
-    def show(self):
-        width = self.canvas.winfo_width()
-        height = self.canvas.winfo_height()
-        dw: float = width / self.grid.cols
-        dh: float = height / self.grid.rows
-
+        # Draw grid on the canvas
+        dw = dh = self.width / self.grid.rows
         for i in range(self.grid.rows):
             for j in range(self.grid.cols):
                 x = j * dw
@@ -123,23 +110,69 @@ class App:
                         fill = 'grey',
                         outline = 'white'
                         )
-                
-        # Showing lines
-        for i in range(self.grid.rows):
-            self.canvas.create_line(0, dh * i, width, dh * i, fill = 'white')
+        if self.is_robot_playing.get():
+            self.robot = Robot(self.grid, self.strategy.get())
+        else:
+            self.window.bind('<Key>', self.grid.snake.change_direction)
 
-        # Showing columns
-        for j in range(self.grid.cols):
-            self.canvas.create_line(dw * j, 0, dw * j, height, fill = 'white')
+    def update(self):
+        self.canvas.delete(*self.elements_to_delete)
+        is_running = self.grid.update(self.canvas, self.update_highscore_label)
+        if self.is_robot_playing.get():
+            self.robot.play()
+        self.update_steps_label(self.grid.snake.steps)
+        self.show()
+        return is_running
+
+    def show(self):
+        self.elements_to_delete = []
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        dw: float = width / self.grid.cols
+        dh: float = height / self.grid.rows
 
         # Show food
         food_x = self.grid.food.y * dw
         food_y = self.grid.food.x * dh
-        self.canvas.create_image(food_x, food_y, image = self.grid.food_image, anchor = 'nw')
+        id_ = self.canvas.create_image(food_x, food_y, image = self.grid.food_image, anchor = 'nw')
+        self.elements_to_delete.append(id_)
 
         # Show snake
-        self.grid.snake.show(self.canvas, dw, dh)
+        for i in range(len(self.grid.snake.body) - 1, -1, -1):
+            fill_color = self.grid.snake.head_color if i == 0 else rgb_to_hex(tuple(map(lambda x: int(x * 255), hls_to_rgb(1 / i, 0.5, 1)))) #self.grid.snake.body_color 
+            width_scale: float = max(1 - i * 0.05, 0.85)
+            segment_row, segment_column = self.grid.snake.body[i]
+            segment_x = dw * (segment_column + (1 - width_scale) * .5)
+            segment_y = dh * (segment_row    + (1 - width_scale) * .5)
+            id_ = self.canvas.create_rectangle(
+                    segment_x,
+                    segment_y,
+                    segment_x + dw * width_scale,
+                    segment_y + dh * width_scale,
+                    fill = fill_color,
+                    )
+            self.elements_to_delete.append(id_)
+            if i in self.grid.snake.bolus:
+                # Constrain between 0.6 and 1
+                width_scale: float = max(2**.5 - i * 0.08, 0.1)
+                segment_x = dw * (segment_column + (1 - width_scale) * .5)
+                segment_y = dh * (segment_row    + (1 - width_scale) * .5)
+                id_ = self.canvas.create_oval(
+                        segment_x,
+                        segment_y,
+                        segment_x + dw * width_scale,
+                        segment_y + dh * width_scale,
+                        fill = 'green',#fill_color,
+                        outline = 'white'
+                        )
+                self.elements_to_delete.append(id_)
+
+        for i in range(len(self.grid.snake.bolus)):
+            self.grid.snake.bolus[i] += 1
+
+        self.grid.snake.bolus = list(filter(lambda bolus: bolus < len(self.grid.snake.body), self.grid.snake.bolus))
         self.canvas.update()
+        self.canvas.delete(*self.elements_to_delete)
 
     def save_highscore(self):
         all_highscores: list[int] = []

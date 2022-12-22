@@ -1,7 +1,6 @@
 from tkinter import Canvas
 from itertools import pairwise
 from Vector import Vector
-from colorsys import hls_to_rgb
 
 rgb_to_hex = lambda rgb: '#%02x%02x%02x' % rgb
 
@@ -61,39 +60,6 @@ class Snake:
 
         if self.velocity != Vector(0, 0):
             self.steps += 1
-
-    def show(self, canvas: Canvas, dw: float, dh: float):
-        for i in range(len(self.body) - 1, -1, -1):
-            fill_color = self.head_color if i == 0 else rgb_to_hex(tuple(map(lambda x: int(x * 255), hls_to_rgb(1 / i, 0.5, 1)))) #self.body_color 
-            width_scale: float = max(1 - i * 0.05, 0.85)
-            segment_row, segment_column = self.body[i]
-            segment_x = dw * (segment_column + (1 - width_scale) * .5)
-            segment_y = dh * (segment_row    + (1 - width_scale) * .5)
-            canvas.create_rectangle(
-                    segment_x,
-                    segment_y,
-                    segment_x + dw * width_scale,
-                    segment_y + dh * width_scale,
-                    fill = fill_color,
-                    )
-            if i in self.bolus:
-                # Constrain between 0.6 and 1
-                width_scale: float = max(2**.5 - i * 0.08, 0.1)
-                segment_x = dw * (segment_column + (1 - width_scale) * .5)
-                segment_y = dh * (segment_row    + (1 - width_scale) * .5)
-                canvas.create_oval(
-                        segment_x,
-                        segment_y,
-                        segment_x + dw * width_scale,
-                        segment_y + dh * width_scale,
-                        fill = 'green',#fill_color,
-                        outline = 'white'
-                        )
-
-        for i in range(len(self.bolus)):
-            self.bolus[i] += 1
-
-        self.bolus = list(filter(lambda bolus: bolus < len(self.body), self.bolus))
 
     def grow(self):
         previous_segment = self.body[-1]
