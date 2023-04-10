@@ -32,35 +32,13 @@ pip3 install tkinter
 This might not be sufficient to run on your linux machine,
 so install tkinter through your linux distro package manager.
 
-### Debian/Ubuntu
-
-```zsh
-sudo apt-get install python3-tk
-```
-
-### CentOS/RHEL
-
-```zsh
-sudo yum install python3-tkinter
-```
-
-### Fedora
-
-```zsh
-sudo dnf install python3-tkinter
-```
-
-### Arch Linux
-
-```zsh
-sudo pacman -S tk
-```
-
-### OpenSUSE
-
-```zsh
-sudo zypper install python3-tk
-```
+platform      | install command
+---           | ---
+Debian/Ubuntu | `apt-get install python3-tk`
+CentOS/RHEL   | `yum install python3-tkinter`
+Fedora        | `dnf install python3-tkinter`
+Arch Linux    | `pacman -S tk`
+OpenSUSE      | `zypper install python3-tk`
 
 Note that the package name may differ based on the specific
 version of the distribution and the package manager being used.
